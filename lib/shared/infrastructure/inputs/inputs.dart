@@ -1,0 +1,11 @@
+export 'email_input.dart';
+export 'password_input.dart';
+export 'username_input.dart';
+export 'name_input.dart';
+export 'last_name_input.dart';
+export 'phone_input.dart';
+export 'address_input.dart';
+export 'date_input.dart';
+export 'gender_input.dart';
+export 'cedula_input.dart';
+export 'relation_legal_guardian.dart.dart';
