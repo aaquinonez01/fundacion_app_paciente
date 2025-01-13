@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class CustomTextFormField extends StatefulWidget {
+class CustomDateFormField extends StatefulWidget {
   final String? label;
   final String? hint;
   final String? errorMessage;
@@ -13,7 +13,7 @@ class CustomTextFormField extends StatefulWidget {
   final bool isDatePicker;
   final String initialValue;
 
-  const CustomTextFormField({
+  const CustomDateFormField({
     super.key,
     this.label,
     this.hint,
@@ -31,7 +31,7 @@ class CustomTextFormField extends StatefulWidget {
   _CustomTextFormFieldState createState() => _CustomTextFormFieldState();
 }
 
-class _CustomTextFormFieldState extends State<CustomTextFormField> {
+class _CustomTextFormFieldState extends State<CustomDateFormField> {
   late TextEditingController _controller;
 
   @override
@@ -41,7 +41,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
   }
 
   @override
-  void didUpdateWidget(covariant CustomTextFormField oldWidget) {
+  void didUpdateWidget(covariant CustomDateFormField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.initialValue != oldWidget.initialValue) {
       _controller.text = widget.initialValue;

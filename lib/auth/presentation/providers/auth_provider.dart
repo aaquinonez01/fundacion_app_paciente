@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fundacion_paciente_app/auth/domain/entities/user_entities.dart';
+import 'package:fundacion_paciente_app/auth/domain/entities/user_register.dart';
 import 'package:fundacion_paciente_app/auth/domain/repositories/auth_repository.dart';
 import 'package:fundacion_paciente_app/auth/infrastructure/errors/auth_errors.dart';
 import 'package:fundacion_paciente_app/auth/infrastructure/repositories/auth_repository_impl.dart';
@@ -40,7 +41,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // state =state.copyWith(user: user, authStatus: AuthStatus.authenticated)
   }
 
-  void registerUser(String email, String password) async {}
+  void registerUser(UserRegister register) async {
+    try {
+      final user = await authRepository.register(register);
+      _setLoggedUser(user);
+    } on CustomError catch (e) {
+      logout(e.message);
+    } catch (e) {
+      logout('Error no controlado');
+    }
+  }
 
   void checkAuthStatus() async {
     final token = await keyValueStorageService.getValue<String>('token');
@@ -66,7 +76,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> logout([String? errorMessage]) async {
     await keyValueStorageService.removeKey('token');
-
+    print(errorMessage);
     state = state.copyWith(
         authStatus: AuthStatus.notAuthenticated,
         user: null,

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fundacion_paciente_app/auth/presentation/providers/auth_provider.dart';
 import 'package:fundacion_paciente_app/home/presentation/providers/page_register_patient.dart';
 import 'package:fundacion_paciente_app/home/presentation/providers/register_patient.dart';
 import 'package:fundacion_paciente_app/shared/presentation/widgets/custom_dropdown_form_field.dart';
-import 'package:fundacion_paciente_app/shared/presentation/widgets/custom_text_form_field.dart';
+import 'package:fundacion_paciente_app/shared/presentation/widgets/custom_date_form_field.dart';
+import 'package:fundacion_paciente_app/shared/presentation/widgets/custom_text_form_fiield.dart';
 
 class RegisterPatientPart1 extends ConsumerWidget {
   const RegisterPatientPart1({super.key});
@@ -11,8 +13,8 @@ class RegisterPatientPart1 extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final registerPatientForm = ref.watch(registerPatientProvider);
+    final user = ref.watch(authProvider).user;
     final pageState = ref.watch(pageControllerProvider);
-    print(registerPatientForm.date.value);
     final currentPage = pageState.currentPage;
     final genders = [
       {'name': 'Masculino', 'value': 'MASCULINO'},
@@ -85,7 +87,7 @@ class RegisterPatientPart1 extends ConsumerWidget {
       const SizedBox(
         height: 15,
       ),
-      CustomTextFormField(
+      CustomDateFormField(
         isDatePicker: true,
         errorMessage: registerPatientForm.isFormPosted
             ? registerPatientForm.date.errorMessage
@@ -148,6 +150,7 @@ class RegisterPatientPart1 extends ConsumerWidget {
       ),
       //Relacion con el guardian legal
       CustomTextFormField(
+        initialValue: user!.userInformation.firstName,
         errorMessage: registerPatientForm.isFormPosted
             ? registerPatientForm.guardian_legal.errorMessage
             : null,

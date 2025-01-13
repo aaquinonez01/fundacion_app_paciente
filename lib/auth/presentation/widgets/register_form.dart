@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fundacion_paciente_app/auth/presentation/providers/register_form_provider.dart';
-import 'package:fundacion_paciente_app/shared/presentation/widgets/custom_text_form_field.dart';
+import 'package:fundacion_paciente_app/shared/presentation/widgets/custom_text_form_fiield.dart';
 
 class RegisterForm extends ConsumerWidget {
   const RegisterForm({

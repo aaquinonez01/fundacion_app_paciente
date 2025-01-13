@@ -1,6 +1,28 @@
 import 'package:formz/formz.dart';
+import 'package:fundacion_paciente_app/auth/domain/entities/user_register.dart';
+import 'package:fundacion_paciente_app/auth/presentation/providers/auth_provider.dart';
 import 'package:fundacion_paciente_app/shared/infrastructure/inputs/inputs.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class RegisterState {
+  String email;
+  String password;
+  String username;
+  String firstname;
+  String lastname;
+  String phone;
+  String address;
+
+  RegisterState({
+    this.email = '',
+    this.password = '',
+    this.username = '',
+    this.firstname = '',
+    this.lastname = '',
+    this.phone = '',
+    this.address = '',
+  });
+}
 
 class FormularioState {
   final Email email;
@@ -55,7 +77,9 @@ class FormularioState {
 }
 
 class FormularioNotifier extends StateNotifier<FormularioState> {
-  FormularioNotifier() : super(const FormularioState());
+  final Function(UserRegister) registerUserCallback;
+  FormularioNotifier({required this.registerUserCallback})
+      : super(const FormularioState());
 
   void onEmailChanged(String value) {
     final newEmail = Email.dirty(value);
@@ -121,7 +145,18 @@ class FormularioNotifier extends StateNotifier<FormularioState> {
     state = state.copyWith(isPosting: true);
 
     try {
-      await Future.delayed(const Duration(seconds: 2));
+      final userRegister = UserRegister(
+        email: state.email.value,
+        password: state.password.value,
+        username: state.username.value,
+        userInformation: UserInformationRegister(
+          firstname: state.firstname.value,
+          lastname: state.lastname.value,
+          address: state.address.value,
+          phone: state.phone.value,
+        ),
+      );
+      await registerUserCallback(userRegister);
       print('Formulario enviado con éxito');
     } finally {
       state = state.copyWith(isPosting: false);
@@ -182,5 +217,8 @@ class FormularioNotifier extends StateNotifier<FormularioState> {
 final registerFormProvider =
     StateNotifierProvider.autoDispose<FormularioNotifier, FormularioState>(
         (ref) {
-  return FormularioNotifier();
+  final register = ref.watch(authProvider.notifier).registerUser;
+  return FormularioNotifier(
+    registerUserCallback: register,
+  );
 });

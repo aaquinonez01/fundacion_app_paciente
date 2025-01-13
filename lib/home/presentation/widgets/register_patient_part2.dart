@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fundacion_paciente_app/home/presentation/providers/page_register_patient.dart';
 import 'package:fundacion_paciente_app/home/presentation/providers/register_patient.dart';
 import 'package:fundacion_paciente_app/home/presentation/widgets/prueba.dart';
-import 'package:fundacion_paciente_app/shared/presentation/widgets/custom_dropdown_form_field.dart';
-import 'package:fundacion_paciente_app/shared/presentation/widgets/custom_text_form_field.dart';
+import 'package:fundacion_paciente_app/shared/presentation/widgets/custom_text_form_fiield.dart';
 
 class RegisterPatientPart2 extends ConsumerWidget {
   const RegisterPatientPart2({super.key});
@@ -75,7 +74,7 @@ class RegisterPatientPart2 extends ConsumerWidget {
         onChanged: (newAllergy) {
           ref
               .read(registerPatientProvider.notifier)
-              .onCurrentMedicationsChanged(newAllergy);
+              .onAllergiesChanged(newAllergy);
         },
       ),
       //Alergias

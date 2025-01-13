@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fundacion_paciente_app/auth/presentation/providers/auth_provider.dart';
 
 import 'package:go_router/go_router.dart';
 
@@ -30,19 +32,19 @@ class HomeScreen extends StatelessWidget {
 }
 
 // ignore: camel_case_types
-class _Home_View_Screen extends StatelessWidget {
-  final String nameUser = 'David';
+class _Home_View_Screen extends ConsumerWidget {
   const _Home_View_Screen();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authProvider).user;
     final colors = Theme.of(context).colorScheme;
     return SizedBox(
       width: double.infinity,
       child: Column(
         children: [
           Text(
-            '¡Bienvenido, $nameUser !',
+            '¡Bienvenido, ${user!.userInformation.firstName}!',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: colors.primary,

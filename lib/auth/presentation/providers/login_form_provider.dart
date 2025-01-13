@@ -43,11 +43,7 @@ class FormularioNotifier extends StateNotifier<FormularioState> {
 
     try {
       // Simula un proceso de envío
-      print('Enviando formulario...');
-      print(state.email.value);
-      print(state.password.value);
       await loginUserCallback(state.email.value, state.password.value);
-      print('Formulario enviado con éxito');
     } catch (e) {
       print('Error al enviar el formulario: $e');
     } finally {

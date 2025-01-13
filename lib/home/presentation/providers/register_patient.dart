@@ -57,7 +57,6 @@ class FormularioPatientState {
     bool? isFormPosted,
     bool? isValid,
   }) {
-    print(date!.value);
     return FormularioPatientState(
       cedula: cedula ?? this.cedula,
       firstname: firstname ?? this.firstname,
@@ -164,6 +163,19 @@ class FormularioPatientNotifier extends StateNotifier<FormularioPatientState> {
     try {
       // Simula un proceso de envío
       await Future.delayed(const Duration(seconds: 2));
+      print({
+        'cedula': state.cedula.value,
+        'firstname': state.firstname.value,
+        'lastname': state.lastname.value,
+        'date': state.date.value,
+        'gender': state.gender.value,
+        'guardian_legal': state.guardian_legal.value,
+        'relation_legal_guardian': state.relation_legal_guardian.value,
+        'disabilities': state.disabilities,
+        'allergies': state.allergies,
+        'currentMedications': state.currentMedications,
+        'type_therapy_required': state.type_therapy_required,
+      });
       print('Formulario enviado con éxito');
     } catch (e) {
       print('Error al enviar el formulario: $e');
@@ -238,7 +250,8 @@ class FormularioPatientNotifier extends StateNotifier<FormularioPatientState> {
   }
 }
 
-final registerPatientProvider = StateNotifierProvider.autoDispose<
-    FormularioPatientNotifier, FormularioPatientState>((ref) {
+final registerPatientProvider =
+    StateNotifierProvider<FormularioPatientNotifier, FormularioPatientState>(
+        (ref) {
   return FormularioPatientNotifier();
 });
