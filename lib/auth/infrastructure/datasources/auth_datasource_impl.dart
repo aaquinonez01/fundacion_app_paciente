@@ -41,6 +41,10 @@ class AuthDatasourceImpl implements AuthDatasource {
         throw CustomError(
             e.response?.data['message'] ?? 'Credenciales incorrectas');
       }
+      if (e.response?.statusCode == 400) {
+        throw CustomError(
+            e.response?.data['message'] ?? 'Error en la petición');
+      }
       if (e.type == DioExceptionType.connectionTimeout) {
         throw CustomError('Revisar conexión a internet');
       }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fundacion_paciente_app/home/presentation/providers/page_register_patient.dart';
 import 'package:fundacion_paciente_app/home/presentation/providers/register_patient.dart';
 import 'package:fundacion_paciente_app/home/presentation/widgets/prueba.dart';
+import 'package:fundacion_paciente_app/shared/presentation/widgets/custom_dropdown_form_field.dart';
 import 'package:fundacion_paciente_app/shared/presentation/widgets/custom_text_form_fiield.dart';
 
 class RegisterPatientPart2 extends ConsumerWidget {
@@ -10,6 +11,10 @@ class RegisterPatientPart2 extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final typeTeraphy = [
+      {'name': 'Terapia', 'value': 'TERAPIA'},
+      {'name': 'Psicologia', 'value': 'PSICOLOGIA'},
+    ];
     final registerPatientForm = ref.watch(registerPatientProvider);
     final pageState = ref.watch(pageControllerProvider);
 
@@ -52,16 +57,36 @@ class RegisterPatientPart2 extends ConsumerWidget {
       const SizedBox(
         height: 10,
       ),
-      CustomInputList(
+      CustomDropdownFormField(
+        errorMessage: registerPatientForm.isFormPosted
+            ? registerPatientForm.gender.errorMessage
+            : null,
         label: 'Tipo de Terapia Requerida',
-        hint: 'Agregue el tipo de terapia requerida',
-        items: registerPatientForm.type_therapy_required,
         onChanged: (newTherapy) {
-          ref
-              .read(registerPatientProvider.notifier)
-              .onTypeTherapyRequiredChanged(newTherapy);
+          if (newTherapy != null) {
+            ref
+                .read(registerPatientProvider.notifier)
+                .onTypeTherapyRequiredChanged([newTherapy]);
+          }
         },
+        hint: 'Seleccione el tipo de terapia requerida',
+        items: typeTeraphy.map((type) {
+          return DropdownMenuItem(
+            value: type['value'],
+            child: Text(type['name']!),
+          );
+        }).toList(),
       ),
+      // CustomInputList(
+      //   label: 'Tipo de Terapia Requerida',
+      //   hint: 'Agregue el tipo de terapia requerida',
+      //   items: registerPatientForm.type_therapy_required,
+      //   onChanged: (newTherapy) {
+      //     ref
+      //         .read(registerPatientProvider.notifier)
+      //         .onTypeTherapyRequiredChanged(newTherapy);
+      //   },
+      // ),
 
       const SizedBox(
         height: 10,
