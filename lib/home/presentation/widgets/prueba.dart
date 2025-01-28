@@ -76,8 +76,9 @@ class _CustomInputListState extends State<CustomInputList> {
           controller: _controller,
           decoration: InputDecoration(
             hintText: widget.hint,
+            hintStyle: TextStyle(fontSize: 15, color: Colors.black54),
             suffixIcon: IconButton(
-              icon:  Icon(Icons.add),
+              icon: Icon(Icons.add),
               onPressed: _addItem,
             ),
             errorText: widget.errorMessage,

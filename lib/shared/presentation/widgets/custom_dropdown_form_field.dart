@@ -51,7 +51,7 @@ class CustomDropdownFormField<T> extends StatelessWidget {
               borderSide: const BorderSide(color: Colors.transparent),
               borderRadius: BorderRadius.circular(40)),
           floatingLabelStyle: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
+              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15),
           errorStyle: const TextStyle(color: Colors.red, fontSize: 14),
           errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(40),

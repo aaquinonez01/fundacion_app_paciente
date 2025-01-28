@@ -5,7 +5,6 @@ import 'package:fundacion_paciente_app/auth/presentation/screens/login_screen.da
 import 'package:fundacion_paciente_app/auth/presentation/screens/register_screen.dart';
 import 'package:fundacion_paciente_app/config/routes/app_router_notifier.dart';
 import 'package:fundacion_paciente_app/home/presentation/screens/home_screen.dart';
-import 'package:fundacion_paciente_app/home/presentation/screens/register_patient_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final goRouterProvider = Provider((ref) {
@@ -36,9 +35,7 @@ final goRouterProvider = Provider((ref) {
         path: '/',
         builder: (context, state) => const HomeScreen(),
       ),
-      GoRoute(
-          path: '/register-patient',
-          builder: (context, state) => RegisterPatientScreen()),
+    
     ],
     redirect: (context, state) {
       final isGoingTo = state.uri.path;

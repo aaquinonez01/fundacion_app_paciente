@@ -21,7 +21,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<User> register(UserRegister user) {
+  Future<User> register(RequestData user) {
     return authDatasource.register(user);
   }
 }

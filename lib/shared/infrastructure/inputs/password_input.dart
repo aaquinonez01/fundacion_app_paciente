@@ -4,7 +4,7 @@ enum PasswordError { empty, length, format }
 
 class Password extends FormzInput<String, PasswordError> {
   static final RegExp passwordRegExp = RegExp(
-    r'(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$',
+    r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$',
   );
 
   const Password.pure() : super.pure('');

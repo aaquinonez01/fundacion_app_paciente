@@ -74,7 +74,7 @@ class LoginScreen extends StatelessWidget {
                       style: TextStyle(fontSize: 18)),
                   TextButton(
                     onPressed: () {
-                      context.go('/register');
+                      context.push('/register');
                     },
                     child: const Text('Registrarse',
                         style: TextStyle(fontSize: 18)),

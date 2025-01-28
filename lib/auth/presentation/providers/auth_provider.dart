@@ -41,7 +41,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // state =state.copyWith(user: user, authStatus: AuthStatus.authenticated)
   }
 
-  void registerUser(UserRegister register) async {
+  void registerUser(RequestData register) async {
     try {
       final user = await authRepository.register(register);
       _setLoggedUser(user);

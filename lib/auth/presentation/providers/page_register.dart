@@ -34,7 +34,7 @@ class PageControllerNotifier extends StateNotifier<PageState> {
 
   // Método para ir a la siguiente página
   void nextPage() {
-    if (state.currentPage < 1) {
+    if (state.currentPage < 2) {
       final nextPage = state.currentPage + 1;
       state = state.copyWith(currentPage: nextPage);
       state.pageController.animateToPage(
@@ -59,7 +59,7 @@ class PageControllerNotifier extends StateNotifier<PageState> {
 
   // Método para actualizar el estado de la página directamente
   void goToPage(int page) {
-    if (page >= 0 && page <= 1) {
+    if (page >= 0 && page <= 2) {
       state = state.copyWith(currentPage: page);
       state.pageController.animateToPage(
         page,

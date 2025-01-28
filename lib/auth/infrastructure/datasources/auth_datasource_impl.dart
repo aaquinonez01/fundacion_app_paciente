@@ -12,6 +12,7 @@ class AuthDatasourceImpl implements AuthDatasource {
   ));
   @override
   Future<User> checkAuthStatus(String token) async {
+    print(token);
     try {
       final response = await dio.get('/auth/check-status',
           options: Options(headers: {'Authorization': 'Bearer $token'}));
@@ -29,11 +30,12 @@ class AuthDatasourceImpl implements AuthDatasource {
   }
 
   @override
-  Future<User> register(UserRegister userRegister) async {
+  Future<User> register(RequestData userRegister) async {
     try {
+      print(userRegister.toJson());
       final response =
           await dio.post('/auth/register', data: userRegister.toJson());
-
+      print(response.data);
       final user = UserMapper.userJsonToEntity(response.data);
       return user;
     } on DioException catch (e) {
@@ -42,14 +44,22 @@ class AuthDatasourceImpl implements AuthDatasource {
             e.response?.data['message'] ?? 'Credenciales incorrectas');
       }
       if (e.response?.statusCode == 400) {
+        print(e.response?.data['message']);
         throw CustomError(
             e.response?.data['message'] ?? 'Error en la petición');
+      }
+
+      if (e.response?.statusCode == 500) {
+        throw CustomError(
+            e.response?.data['message'] ?? 'Error en la Peticion');
       }
       if (e.type == DioExceptionType.connectionTimeout) {
         throw CustomError('Revisar conexión a internet');
       }
+      print("Error: $e");
       throw Exception();
     } catch (e) {
+      print(e);
       throw Exception();
     }
   }
@@ -66,6 +76,7 @@ class AuthDatasourceImpl implements AuthDatasource {
         throw CustomError(
             e.response?.data['message'] ?? 'Credenciales incorrectas');
       }
+
       if (e.type == DioExceptionType.connectionTimeout) {
         throw CustomError('Revisar conexión a internet');
       }
