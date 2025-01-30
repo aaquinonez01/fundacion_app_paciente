@@ -32,7 +32,7 @@ jobs:
         run: flutter pub get
 
       - name: Skip Tests (por ahora)
-        run: echo "Skipping tests for now" # No ejecuta `flutter test`
+        run: echo "Skipping tests for now" # No ejecuta `flutter testss`
 
       - name: Run SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
