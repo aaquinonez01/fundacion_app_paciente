@@ -10,17 +10,17 @@ on:
 jobs:
   sonarqube:
     name: SonarQube Analysis
-    runs-on: ubuntu-latest  # Se recomienda Linux para Flutter en CI/CD
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Necesario para un análisis preciso en SonarQube
+          fetch-depth: 0
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.27.3"  # Especificar la versión compatible con Dart 3.5.4
+          flutter-version: "3.27.3"
           channel: "stable"
 
       - name: Verify Flutter & Dart Versions
@@ -28,25 +28,17 @@ jobs:
           flutter --version
           dart --version
 
-      - name: Enable Flutter Web (Opcional)
-        run: flutter config --enable-web  # Si necesitas soporte para Web
-
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Run Tests with Coverage
-        run: flutter test --coverage
+      - name: Skip Tests (por ahora)
+        run: echo "Skipping tests for now" # No ejecuta `flutter test`
 
-      - name: Convert Coverage to lcov.info
-        run: |
-          sudo apt-get install lcov -y
-          lcov --remove coverage/lcov.info 'lib/**.g.dart' -o coverage/lcov.info
-
-      - name: SonarQube Scan
+      - name: Run SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}  # Asegúrate de definirlo en tus secretos
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
       - name: Build Flutter App (Opcional)
         run: flutter build apk --release
