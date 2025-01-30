@@ -1,0 +1,44 @@
+name: Flutter Build and SonarQube Analysis
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest  # Se recomienda usar Linux para Flutter en CI/CD
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Necesario para un análisis preciso en SonarQube
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "stable"
+          channel: "stable"
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Run Tests with Coverage
+        run: flutter test --coverage
+
+      - name: Convert Coverage to lcov.info
+        run: |
+          sudo apt-get install lcov -y
+          lcov --remove coverage/lcov.info 'lib/**.g.dart' -o coverage/lcov.info
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}  # Asegúrate de definirlo en tus secretos
+
+      - name: Build Flutter App (Opcional)
+        run: flutter build apk --release
