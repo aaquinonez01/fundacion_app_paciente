@@ -17,39 +17,56 @@ jobs:
         with:
           fetch-depth: 0  # Necesario para un análisis preciso en SonarQube
 
-      # ✅ Instalar Flutter de forma manual desde el repositorio oficial para evitar errores
+      # ✅ Descargar e instalar Flutter manualmente
       - name: Install Flutter Manually
         run: |
           git clone https://github.com/flutter/flutter.git -b stable --depth 1 $HOME/flutter
+          echo "export PATH=\$HOME/flutter/bin:\$PATH" >> $HOME/.bashrc
           echo "$HOME/flutter/bin" >> $GITHUB_PATH
+          source $HOME/.bashrc
           flutter --version
 
+      # ✅ Verificar que Flutter y Dart estén correctamente instalados
       - name: Verify Flutter & Dart Versions
         run: |
+          export PATH=$HOME/flutter/bin:$PATH
           flutter doctor -v
           dart --version
 
+      # ✅ Configurar Flutter para web (Opcional)
       - name: Enable Flutter Web (Opcional)
-        run: flutter config --enable-web  # Si necesitas soporte para Web
+        run: |
+          export PATH=$HOME/flutter/bin:$PATH
+          flutter config --enable-web
 
+      # ✅ Instalar dependencias de Flutter
       - name: Install Dependencies
         run: |
+          export PATH=$HOME/flutter/bin:$PATH
           flutter upgrade
           flutter pub get
 
+      # ✅ Ejecutar pruebas unitarias con cobertura
       - name: Run Tests with Coverage
-        run: flutter test --coverage
+        run: |
+          export PATH=$HOME/flutter/bin:$PATH
+          flutter test --coverage
 
+      # ✅ Convertir la cobertura a lcov.info para SonarQube
       - name: Convert Coverage to lcov.info
         run: |
           sudo apt-get install lcov -y
           lcov --remove coverage/lcov.info 'lib/**.g.dart' -o coverage/lcov.info
 
+      # ✅ Escaneo con SonarQube
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}  # Asegúrate de definirlo en tus secretos
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
+      # ✅ Construcción de la aplicación (Opcional)
       - name: Build Flutter App (Opcional)
-        run: flutter build apk --release
+        run: |
+          export PATH=$HOME/flutter/bin:$PATH
+          flutter build apk --release
