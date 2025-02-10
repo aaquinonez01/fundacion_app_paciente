@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Environment.initEnvironment();
   await initializeDateFormatting('es_EC', null);
   runApp(const ProviderScope(child: MainApp()));

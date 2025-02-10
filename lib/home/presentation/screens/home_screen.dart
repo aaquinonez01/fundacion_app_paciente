@@ -5,16 +5,24 @@ import 'package:fundacion_paciente_app/shared/presentation/widgets/header.dart';
 
 import 'package:table_calendar/table_calendar.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   static const String name = 'home-screen';
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          actions: [
+            IconButton(
+              icon: Icon(Icons.logout),
+              onPressed: () {
+                ref.read(authProvider.notifier).logout();
+              },
+            ),
+          ],
           toolbarHeight: 80,
           flexibleSpace: const Padding(
             padding: EdgeInsets.only(top: 20, left: 40), // Ajustar margen

@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:fundacion_paciente_app/auth/presentation/providers/auth_provider.dart';
 import 'package:fundacion_paciente_app/auth/presentation/widgets/login_form.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends ConsumerWidget {
   static const name = 'login-screen';
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<AuthState?>(authProvider, (previous, next) {
+      if (next!.errorMessage.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.errorMessage),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    });
     final colors = Theme.of(context).colorScheme;
     return Scaffold(
       body: SafeArea(
@@ -57,7 +69,9 @@ class LoginScreen extends StatelessWidget {
                   children: [
                     const Text('¿Olvidaste tu contraseña?'),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context.push('/forgot-password');
+                      },
                       child: const Text('Recuperar'),
                     )
                   ],

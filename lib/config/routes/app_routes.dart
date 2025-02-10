@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fundacion_paciente_app/auth/presentation/providers/auth_provider.dart';
 import 'package:fundacion_paciente_app/auth/presentation/screens/check_auth_status_screen.dart';
+import 'package:fundacion_paciente_app/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:fundacion_paciente_app/auth/presentation/screens/login_screen.dart';
 import 'package:fundacion_paciente_app/auth/presentation/screens/register_screen.dart';
 import 'package:fundacion_paciente_app/config/routes/app_router_notifier.dart';
@@ -29,13 +30,15 @@ final goRouterProvider = Provider((ref) {
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
       ),
+      GoRoute(
+          path: '/forgot-password',
+          builder: (context, state) => const ForgotPasswordScreen()),
 
       ///* Product Routes
       GoRoute(
         path: '/',
         builder: (context, state) => const HomeScreen(),
       ),
-    
     ],
     redirect: (context, state) {
       final isGoingTo = state.uri.path;
@@ -45,7 +48,11 @@ final goRouterProvider = Provider((ref) {
         return null;
 
       if (authStatus == AuthStatus.notAuthenticated) {
-        if (isGoingTo == '/login' || isGoingTo == '/register') return null;
+        if (isGoingTo == '/login' ||
+            isGoingTo == '/register' ||
+            isGoingTo == '/forgot-password') {
+          return null;
+        }
 
         return '/login';
       }

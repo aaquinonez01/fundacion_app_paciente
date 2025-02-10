@@ -75,7 +75,6 @@ class FormularioState {
     List<String>? disabilities_patient,
     List<String>? allergies_patient,
     List<String>? current_medications_patient,
-    List<String>? type_therapy_required_patient,
     bool? isPosting,
     bool? isFormPosted,
     bool? isValid,
@@ -103,8 +102,6 @@ class FormularioState {
       allergies_patient: allergies_patient ?? this.allergies_patient,
       current_medications_patient:
           current_medications_patient ?? this.current_medications_patient,
-      type_therapy_required_patient:
-          type_therapy_required_patient ?? this.type_therapy_required_patient,
       isPosting: isPosting ?? this.isPosting,
       isFormPosted: isFormPosted ?? this.isFormPosted,
       isValid: isValid ?? this.isValid,
@@ -251,10 +248,6 @@ class FormularioNotifier extends StateNotifier<FormularioState> {
     state = state.copyWith(current_medications_patient: value);
   }
 
-  void onTypeTherapyRequiredPatientChanged(List<String> value) {
-    state = state.copyWith(type_therapy_required_patient: value);
-  }
-
   void OnNextPage2() {
     _touchEveryFieldPart1();
     print(state.isValid);
@@ -288,24 +281,19 @@ class FormularioNotifier extends StateNotifier<FormularioState> {
           ),
         ),
         createPatient: CreatePatient(
-          firstname: state.firstname_patient.value,
-          lastname: state.lastname_patient.value,
-          birthdate: state.date_patient.value,
-          legalGuardian: state.guardian_legal_patient.value,
-          dni: state.cedula_patient.value,
-          disability: state.disabilities_patient,
-          allergies: state.allergies_patient,
-          currentMedications: state.current_medications_patient,
-          gender: state.gender_patient.value,
-          relationshipRepresentativePatient:
-              state.relation_legal_guardian_patient.value,
-          healthInsurance: state.health_insurance_patient.value,
-          typeTherapyRequired: state.type_therapy_required_patient,
-          historyTreatmentsReceived: List.generate(
-            5,
-            (index) => Random().nextInt(100).toString(),
-          ),
-        ),
+            firstname: state.firstname_patient.value,
+            lastname: state.lastname_patient.value,
+            birthdate: state.date_patient.value,
+            legalGuardian: state.guardian_legal_patient.value,
+            dni: state.cedula_patient.value,
+            disability: state.disabilities_patient,
+            allergies: state.allergies_patient,
+            currentMedications: state.current_medications_patient,
+            gender: state.gender_patient.value,
+            relationshipRepresentativePatient:
+                state.relation_legal_guardian_patient.value,
+            healthInsurance: state.health_insurance_patient.value,
+            historyTreatmentsReceived: ["None"]),
       );
       await registerUserCallback(userRegister);
       print('Formulario enviado con éxito');
@@ -398,8 +386,6 @@ class FormularioNotifier extends StateNotifier<FormularioState> {
     final disabilities_patient = state.disabilities_patient ?? [];
     final allergies_patient = state.allergies_patient ?? [];
     final current_medications_patient = state.current_medications_patient ?? [];
-    final type_therapy_required_patient =
-        state.type_therapy_required_patient ?? [];
 
     state = state.copyWith(
       isFormPosted: true,
@@ -421,7 +407,6 @@ class FormularioNotifier extends StateNotifier<FormularioState> {
       disabilities_patient: disabilities_patient,
       allergies_patient: allergies_patient,
       current_medications_patient: current_medications_patient,
-      type_therapy_required_patient: type_therapy_required_patient,
       isValid: _validateForm(
         newEmailUser: email_user,
         newPasswordUser: password_user,
@@ -520,25 +505,24 @@ class FormularioNotifier extends StateNotifier<FormularioState> {
 
   void setInitialData() {
     state = state.copyWith(
-      email_user: Email.dirty('test@example.com'),
-      password_user: Password.dirty('!Test1234'),
-      username_user: Username.dirty('testuser'),
-      firstname_user: Name.dirty('John'),
-      lastname_user: Lastname.dirty('Doe'),
-      phone_user: Phone.dirty('1234567890'),
+      email_user: Email.dirty('davidsalguero@gmail.com'),
+      password_user: Password.dirty('!David123'),
+      username_user: Username.dirty('davidsalguero1'),
+      firstname_user: Name.dirty('David'),
+      lastname_user: Lastname.dirty('Salguero'),
+      phone_user: Phone.dirty('0989815664'),
       address_user: Address.dirty('123 Main Street'),
-      cedula_patient: Cedula.dirty('1234567890'),
-      firstname_patient: Name.dirty('Jane'),
-      lastname_patient: Lastname.dirty('Smith'),
+      cedula_patient: Cedula.dirty('0804199238'),
+      firstname_patient: Name.dirty('David'),
+      lastname_patient: Lastname.dirty('Salguero'),
       date_patient: Date.dirty('17/01/2019'),
       gender_patient: Gender.dirty('MUJER'),
-      guardian_legal_patient: Name.dirty('Michael'),
+      guardian_legal_patient: Name.dirty('David Salguero'),
       relation_legal_guardian_patient: RelationLegalGuardian.dirty('PADRE'),
-      health_insurance_patient: Name.dirty('IESS'),
+      health_insurance_patient: Name.dirty('ISSFA'),
       disabilities_patient: ['Discapacidad Visual'],
       allergies_patient: ['Polen'],
       current_medications_patient: ['Ibuprofeno'],
-      type_therapy_required_patient: ['TERAPIA'],
       isValid: true,
     );
   }

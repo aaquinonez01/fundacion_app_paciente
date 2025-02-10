@@ -66,7 +66,6 @@ class CreatePatient {
   final String gender;
   final String relationshipRepresentativePatient;
   final String healthInsurance;
-  final List<String> typeTherapyRequired;
   final List<String> currentMedications;
   final List<String> allergies;
   final List<String> historyTreatmentsReceived;
@@ -81,7 +80,6 @@ class CreatePatient {
     required this.gender,
     required this.relationshipRepresentativePatient,
     required this.healthInsurance,
-    required this.typeTherapyRequired,
     required this.currentMedications,
     required this.allergies,
     required this.historyTreatmentsReceived,
@@ -100,7 +98,6 @@ class CreatePatient {
       'gender': gender,
       'relationshipRepresentativePatient': relationshipRepresentativePatient,
       'healthInsurance': healthInsurance,
-      'typeTherapyRequired': typeTherapyRequired,
       'currentMedications': currentMedications,
       'allergies': allergies,
       'historyTreatmentsReceived': historyTreatmentsReceived,

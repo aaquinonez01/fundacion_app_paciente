@@ -1,50 +1,36 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'key_value_storage_service.dart';
 
-class KeyValueStorageServiceImpl extends KeyValueStorageService {
-  Future<SharedPreferences> getSharedPrefs() async {
-    return await SharedPreferences.getInstance();
+class KeyValueStorageServiceImpl implements KeyValueStorageService {
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
+
+  @override
+  Future<void> setKeyValue<T>(String key, T value) async {
+    if (value is String) {
+      await _storage.write(key: key, value: value);
+    } else {
+      throw UnimplementedError(
+          'No está implementado para el tipo ${T.runtimeType}');
+    }
   }
 
   @override
   Future<T?> getValue<T>(String key) async {
-    final prefs = await getSharedPrefs();
+    final value = await _storage.read(key: key);
 
-    switch (T) {
-      case int:
-        return prefs.getInt(key) as T?;
+    if (value == null) return null;
 
-      case String:
-        return prefs.getString(key) as T?;
-
-      default:
-        throw UnimplementedError(
-            'No se ha implementado el tipo ${T.runtimeType}');
+    if (T == String) {
+      return value as T;
+    } else {
+      throw UnimplementedError(
+          'No está implementado para el tipo ${T.runtimeType}');
     }
   }
 
   @override
   Future<bool> removeKey(String key) async {
-    final prefs = await getSharedPrefs();
-    return await prefs.remove(key);
-  }
-
-  @override
-  Future<void> setKeyValue<T>(String key, T value) async {
-    final prefs = await getSharedPrefs();
-
-    switch (T) {
-      case int:
-        prefs.setInt(key, value as int);
-        break;
-
-      case String:
-        prefs.setString(key, value as String);
-        break;
-
-      default:
-        throw UnimplementedError(
-            'No esta implementado para el tipo ${T.runtimeType}');
-    }
+    await _storage.delete(key: key);
+    return true;
   }
 }

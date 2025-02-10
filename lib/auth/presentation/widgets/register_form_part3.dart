@@ -4,7 +4,6 @@ import 'package:fundacion_paciente_app/auth/presentation/providers/page_register
 import 'package:fundacion_paciente_app/auth/presentation/providers/register_form_provider.dart';
 import 'package:fundacion_paciente_app/home/presentation/widgets/prueba.dart';
 import 'package:fundacion_paciente_app/shared/presentation/widgets/custom_dropdown_form_field.dart';
-import 'package:fundacion_paciente_app/shared/presentation/widgets/custom_text_form_fiield.dart';
 
 class RegisterPatientPart3 extends ConsumerWidget {
   const RegisterPatientPart3({super.key});
@@ -12,8 +11,8 @@ class RegisterPatientPart3 extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final typeTeraphy = [
-      {'name': 'Terapia', 'value': 'TERAPIA'},
-      {'name': 'Psicologia', 'value': 'PSICOLOGIA'},
+      {'name': 'Issfa', 'value': 'ISSFA'},
+      {'name': 'Ninguno', 'value': 'NINGUNO'},
     ];
     final pageState = ref.watch(pageControllerProvider);
     final registerForm = ref.watch(registerFormProvider);
@@ -35,18 +34,48 @@ class RegisterPatientPart3 extends ConsumerWidget {
         const SizedBox(
           height: 10,
         ),
-        CustomTextFormField(
-          initialValue: registerForm.health_insurance_patient.value,
+        const SizedBox(
+          height: 10,
+        ),
+        Row(children: [
+          Text(
+            "",
+            textAlign: TextAlign.start,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: registerForm.isFormPosted
+                  ? registerForm.health_insurance_patient.errorMessage != null
+                      ? Colors.red
+                      : colors.primary
+                  : colors.primary,
+            ),
+          ),
+        ]),
+        const SizedBox(
+          height: 15,
+        ),
+        CustomDropdownFormField(
           errorMessage: registerForm.isFormPosted
-              ? registerForm.health_insurance_patient.errorMessage
+              ? registerForm.health_insurance_patient.errorMessage != null
+                  ? 'Este campo es requerido'
+                  : null
               : null,
-          prefixIcon: Icon(Icons.medical_services),
           label: 'Seguro Social',
-          hint: ('Ingrese su seguro social'),
-          keyboardType: TextInputType.name,
-          onChanged: ref
-              .read(registerFormProvider.notifier)
-              .onHealthInsurancePatientChanged,
+          onChanged: (newTherapy) {
+            if (newTherapy != null) {
+              ref
+                  .read(registerFormProvider.notifier)
+                  .onHealthInsurancePatientChanged(newTherapy);
+            }
+          },
+          hint: 'Seleccione el seguro social',
+          items: typeTeraphy.map((type) {
+            return DropdownMenuItem(
+              value: type['value'],
+              child: Text(type['name']!),
+            );
+          }).toList(),
         ),
         const SizedBox(
           height: 10,
@@ -67,60 +96,7 @@ class RegisterPatientPart3 extends ConsumerWidget {
         const SizedBox(
           height: 10,
         ),
-        Row(children: [
-          Text(
-            "Tipo de Terapia Requerida",
-            textAlign: TextAlign.start,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: registerForm.isFormPosted
-                  ? registerForm.type_therapy_required_patient.isEmpty
-                      ? Colors.red
-                      : colors.primary
-                  : colors.primary,
-            ),
-          ),
-        ]),
-        const SizedBox(
-          height: 15,
-        ),
-        CustomDropdownFormField(
-          errorMessage: registerForm.isFormPosted
-              ? registerForm.type_therapy_required_patient.isEmpty
-                  ? 'Este campo es requerido'
-                  : null
-              : null,
-          label: 'Tipo de Terapia Requerida',
-          onChanged: (newTherapy) {
-            if (newTherapy != null) {
-              ref
-                  .read(registerFormProvider.notifier)
-                  .onTypeTherapyRequiredPatientChanged([newTherapy]);
-            }
-          },
-          hint: 'Seleccione el tipo de terapia requerida',
-          items: typeTeraphy.map((type) {
-            return DropdownMenuItem(
-              value: type['value'],
-              child: Text(type['name']!),
-            );
-          }).toList(),
-        ),
-        // CustomInputList(
-        //   label: 'Tipo de Terapia Requerida',
-        //   hint: 'Agregue el tipo de terapia requerida',
-        //   items: registerPatientForm.type_therapy_required,
-        //   onChanged: (newTherapy) {
-        //     ref
-        //         .read(registerPatientProvider.notifier)
-        //         .onTypeTherapyRequiredChanged(newTherapy);
-        //   },
-        // ),
 
-        const SizedBox(
-          height: 10,
-        ),
         CustomInputList(
           label: 'Alergias',
           hint: 'Agregar alergias',
