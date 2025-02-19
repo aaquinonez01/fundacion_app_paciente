@@ -1,4 +1,4 @@
-name: DevSecOps para Frontend m
+name: DevSecOps para Frontend Móvil
 
 on:
   push:
@@ -47,35 +47,10 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: "https://sonarcloud.io"
 
-  escaneo_dependencias:
-    name: Escaneo de Dependencias (OWASP Dependency-Check)
-    runs-on: ubuntu-latest
-    needs: analisis_codigo_sonarqube
-    steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
-
-      - name: Descargar OWASP Dependency-Check
-        run: |
-          DEPENDENCY_CHECK_VERSION="9.0.6"
-          wget "https://github.com/jeremylong/DependencyCheck/releases/download/v${DEPENDENCY_CHECK_VERSION}/dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip"
-          unzip "dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip"
-          chmod +x dependency-check/bin/dependency-check.sh
-
-      - name: Ejecutar escaneo de dependencias
-        run: |
-          dependency-check/bin/dependency-check.sh --project "FrontendMóvil" --scan . --format HTML --out reports/
-
-      - name: Subir reporte como artefacto
-        uses: actions/upload-artifact@v4
-        with:
-          name: dependency-check-report
-          path: reports/
-
   escaneo_snyk:
     name: Escaneo de Vulnerabilidades con Snyk
     runs-on: ubuntu-latest
-    needs: escaneo_dependencias
+    needs: analisis_codigo_sonarqube
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
