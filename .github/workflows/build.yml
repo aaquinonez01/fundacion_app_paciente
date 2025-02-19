@@ -1,4 +1,4 @@
-name: DevSecOps para Frontend Móvils
+name: DevSecOps para Frontend Móvil
 
 on:
   push:
@@ -47,31 +47,10 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: "https://sonarcloud.io"
 
-  escaneo_dependabot:
-    name: Escaneo de Dependencias con Dependabot
-    runs-on: ubuntu-latest
-    needs: analisis_codigo_sonarqube
-    steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
-
-      - name: Instalar GitHub CLI
-        run: |
-          sudo apt update
-          sudo apt install gh -y
-
-      - name: Ejecutar Dependabot
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh api --method POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            /repos/${{ github.repository }}/dependabot/updates
-
   escaneo_checkov:
     name: Análisis de Configuración con Checkov
     runs-on: ubuntu-latest
-    needs: escaneo_dependabot
+    needs: analisis_codigo_sonarqube
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
