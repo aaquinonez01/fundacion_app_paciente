@@ -1,19 +1,41 @@
-name: SonarQube Analysis
+name: CI/CD 
+
 on:
   push:
     branches:
-      - main
+      - main  # Se ejecuta en cada push a la rama principal
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches:
+      - main
 
 jobs:
-  sonarqube:
-    name: SonarQube Analysis
-    runs-on: ubuntu-latest  # Es mejor usar Ubuntu porque es más rápido y ligero
+  seguridad:
+    name: Seguridad (Gitleaks)
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout del código
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Permite que SonarQube analice correctamente los cambios
+          fetch-depth: 0  # Permite a SonarQube analizar correctamente los cambios
+
+      - name: Instalar Gitleaks
+        run: |
+          curl -sSL https://github.com/zricethez/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
+          chmod +x gitleaks
+          sudo mv gitleaks /usr/local/bin/
+
+      - name: Ejecutar Gitleaks para detectar credenciales
+        run: gitleaks detect --verbose --redact --source . || true  # No falla el pipeline si encuentra credenciales
+
+  analisis_sonarqube:
+    name: Análisis de Código (SonarCloud)
+    runs-on: ubuntu-latest
+    needs: seguridad  # Solo ejecuta SonarCloud después de que Gitleaks termine
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Importante para que SonarQube analice correctamente el historial
 
       - name: Setup Java (Necesario para SonarCloud)
         uses: actions/setup-java@v3
