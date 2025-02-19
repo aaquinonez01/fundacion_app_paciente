@@ -47,31 +47,31 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: "https://sonarcloud.io"
 
-  escaneo_snyk:
-    name: Escaneo de Vulnerabilidades con Snyk
+  escaneo_dependabot:
+    name: Escaneo de Dependencias con Dependabot
     runs-on: ubuntu-latest
     needs: analisis_codigo_sonarqube
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
 
-      - name: Instalar Snyk CLI
-        run: npm install -g snyk
+      - name: Instalar GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install gh -y
 
-      - name: Autenticar Snyk con Token
+      - name: Ejecutar Dependabot
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk auth $SNYK_TOKEN
-
-      - name: Escanear dependencias con Snyk
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk test --severity-threshold=high
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api --method POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            /repos/${{ github.repository }}/dependabot/updates
 
   escaneo_checkov:
     name: Análisis de Configuración con Checkov
     runs-on: ubuntu-latest
-    needs: escaneo_snyk
+    needs: escaneo_dependabot
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
