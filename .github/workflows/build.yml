@@ -55,11 +55,11 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v4
 
-      - name: Descargar y configurar OWASP Dependency-Check
+      - name: Descargar OWASP Dependency-Check
         run: |
-          DEPENDENCY_CHECK_VERSION="8.4.0"
-          curl -sSL -o dependency-check.zip "https://dl.bintray.com/jeremylong/owasp/dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip"
-          unzip dependency-check.zip -d dependency-check
+          DEPENDENCY_CHECK_VERSION="9.0.6"
+          wget "https://github.com/jeremylong/DependencyCheck/releases/download/v${DEPENDENCY_CHECK_VERSION}/dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip"
+          unzip "dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip"
           chmod +x dependency-check/bin/dependency-check.sh
 
       - name: Ejecutar escaneo de dependencias
