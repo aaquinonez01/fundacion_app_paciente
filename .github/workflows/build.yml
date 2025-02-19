@@ -47,16 +47,49 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: "https://sonarcloud.io"
 
-  escaneo_checkov:
-    name: Análisis de Configuración con Checkov
+  analisis_mobsf:
+    name: Análisis Dinámico con MobSF
     runs-on: ubuntu-latest
     needs: analisis_codigo_sonarqube
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
 
-      - name: Instalar Checkov
-        run: pip install checkov
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.3'
+          channel: 'stable'
 
-      - name: Ejecutar Checkov en archivos de configuración
-        run: checkov -d .
+      - name: Instalar dependencias de Flutter
+        run: flutter pub get
+
+      - name: Generar APK en modo release
+        run: flutter build apk --release
+
+      - name: Descargar e iniciar MobSF
+        run: |
+          docker pull opensecurity/mobile-security-framework-mobsf
+          docker run -d -p 8000:8000 --name mobsf opensecurity/mobile-security-framework-mobsf
+
+      - name: Esperar a que MobSF esté listo
+        run: sleep 30
+
+      - name: Analizar APK con MobSF
+        run: |
+          APK_PATH=$(find build/app/outputs/flutter-apk -name "*.apk" | head -n 1)
+          curl -X POST "http://localhost:8000/api/v1/upload" \
+            -H "Authorization: ${{ secrets.MOBSF_API_KEY }}" \
+            -F "file=@$APK_PATH"
+
+      - name: Obtener reporte de análisis
+        run: |
+          curl -X GET "http://localhost:8000/api/v1/report_json" \
+            -H "Authorization: ${{ secrets.MOBSF_API_KEY }}" \
+            -o mobsf_report.json
+
+      - name: Subir reporte como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: MobSF Report
+          path: mobsf_report.json
