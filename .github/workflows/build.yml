@@ -18,7 +18,7 @@ jobs:
 
       - name: Instalar Gitleaks
         run: |
-          curl -sSL https://github.com/zricethez/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
           chmod +x gitleaks
           sudo mv gitleaks /usr/local/bin/
 
@@ -57,16 +57,15 @@ jobs:
 
       - name: Instalar OWASP Dependency-Check
         run: |
-          curl -sSL https://github.com/jeremylong/DependencyCheck/releases/latest/download/dependency-check-7.4.0-release.zip -o dependency-check.zip
-          unzip dependency-check.zip -d dependency-check
-          chmod +x dependency-check/dependency-check.sh
+          sudo apt-get update
+          sudo apt-get install dependency-check -y
 
       - name: Ejecutar escaneo de dependencias
         run: |
-          dependency-check/dependency-check.sh --project "FrontendMóvil" --scan . --format HTML --out reports/
+          dependency-check --project "FrontendMóvil" --scan . --format HTML --out reports/
 
       - name: Subir reporte como artefacto
-        uses: actions/upload-artifact@v4  # 🔥 Cambiado a la versión correcta
+        uses: actions/upload-artifact@v4
         with:
           name: dependency-check-report
           path: reports/
