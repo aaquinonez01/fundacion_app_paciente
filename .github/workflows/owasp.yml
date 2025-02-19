@@ -30,22 +30,17 @@ jobs:
 
       - name: Iniciar OWASP ZAP en modo Proxy
         run: |
-          docker pull owasp/zap2docker-stable
-          docker run -d -u zap -p 8080:8080 --name zap owasp/zap2docker-stable zap.sh -daemon -port 8080 -host 0.0.0.0
+          docker pull owasp/zap2docker  # Imagen correcta
+          docker run -d -u zap -p 8080:8080 --name zap owasp/zap2docker zap.sh -daemon -port 8080 -host 0.0.0.0
 
       - name: Esperar a que OWASP ZAP esté listo
         run: sleep 30
-
-      - name: Configurar la app para usar OWASP ZAP como proxy
-        run: |
-          echo "Configurando Flutter para usar OWASP ZAP como proxy en 127.0.0.1:8080"
-          echo "Si tu app no permite proxies, modifica el código de networking en Flutter."
 
       - name: Ejecutar escaneo OWASP ZAP en la API que usa la app Flutter
         run: |
           docker exec zap zap-cli quick-scan --self-contained --start-options "-config api.disablekey=true" "${{ secrets.APP_BACKEND_URL }}"
 
-      - name: Obtener reporte de OWASP ZAP
+      - name: Obtener reporte OWASP ZAP
         run: |
           docker exec zap zap-cli report -o zap_report.html -f html
 
