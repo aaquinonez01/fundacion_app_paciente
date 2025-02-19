@@ -1,4 +1,4 @@
-name: Build
+name: SonarQube Analysis
 on:
   push:
     branches:
@@ -8,35 +8,18 @@ on:
 
 jobs:
   sonarqube:
-    name: SonarQube
-    runs-on: windows-latest
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest  # Es mejor usar Ubuntu porque es más rápido y ligero
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0  # Permite que SonarQube analice correctamente los cambios
 
-      - name: Setup Java (Gradle requiere Java 11+)
+      - name: Setup Java (Necesario para SonarCloud)
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'  # Usar JDK de Eclipse Adoptium (anteriormente AdoptOpenJDK)
-          java-version: '17'       # Se recomienda Java 17 para Gradle y Android
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.27.3'  # Ajusta según la versión que uses
-          channel: 'stable'
-
-      - name: Verify Flutter & Dart Versions
-        run: |
-          flutter --version
-          dart --version
-
-      - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Build APK (Android)
-        run: flutter build apk --release
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
