@@ -55,14 +55,15 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v4
 
-      - name: Instalar OWASP Dependency-Check
+      - name: Descargar y configurar OWASP Dependency-Check
         run: |
-          sudo apt-get update
-          sudo apt-get install dependency-check -y
+          curl -sSL https://github.com/jeremylong/DependencyCheck/releases/latest/download/dependency-check-8.4.0-release.zip -o dependency-check.zip
+          unzip dependency-check.zip -d dependency-check
+          chmod +x dependency-check/bin/dependency-check.sh
 
       - name: Ejecutar escaneo de dependencias
         run: |
-          dependency-check --project "FrontendMóvil" --scan . --format HTML --out reports/
+          dependency-check/bin/dependency-check.sh --project "FrontendMóvil" --scan . --format HTML --out reports/
 
       - name: Subir reporte como artefacto
         uses: actions/upload-artifact@v4
