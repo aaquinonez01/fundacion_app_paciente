@@ -1,0 +1,56 @@
+name: Análisis Dinámico con OWASP ZAP para Flutter
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  analisis_owasp_zap:
+    name: Análisis de Seguridad en Flutter con OWASP ZAP
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.3'
+          channel: 'stable'
+
+      - name: Instalar dependencias de Flutter
+        run: flutter pub get
+
+      - name: Generar APK en modo release
+        run: flutter build apk --release
+
+      - name: Iniciar OWASP ZAP en modo Proxy
+        run: |
+          docker pull owasp/zap2docker-stable
+          docker run -d -u zap -p 8080:8080 --name zap owasp/zap2docker-stable zap.sh -daemon -port 8080 -host 0.0.0.0
+
+      - name: Esperar a que OWASP ZAP esté listo
+        run: sleep 30
+
+      - name: Configurar la app para usar OWASP ZAP como proxy
+        run: |
+          echo "Configurando Flutter para usar OWASP ZAP como proxy en 127.0.0.1:8080"
+          echo "Si tu app no permite proxies, modifica el código de networking en Flutter."
+
+      - name: Ejecutar escaneo OWASP ZAP en la API que usa la app Flutter
+        run: |
+          docker exec zap zap-cli quick-scan --self-contained --start-options "-config api.disablekey=true" "${{ secrets.APP_BACKEND_URL }}"
+
+      - name: Obtener reporte de OWASP ZAP
+        run: |
+          docker exec zap zap-cli report -o zap_report.html -f html
+
+      - name: Subir reporte de OWASP ZAP como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: OWASP ZAP Report
+          path: zap_report.html
