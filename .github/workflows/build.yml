@@ -57,7 +57,8 @@ jobs:
 
       - name: Descargar y configurar OWASP Dependency-Check
         run: |
-          curl -sSL https://github.com/jeremylong/DependencyCheck/releases/latest/download/dependency-check-8.4.0-release.zip -o dependency-check.zip
+          DEPENDENCY_CHECK_VERSION="8.4.0"
+          curl -sSL -o dependency-check.zip "https://dl.bintray.com/jeremylong/owasp/dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip"
           unzip dependency-check.zip -d dependency-check
           chmod +x dependency-check/bin/dependency-check.sh
 
