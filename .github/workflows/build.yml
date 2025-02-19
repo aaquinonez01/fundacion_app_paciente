@@ -93,3 +93,49 @@ jobs:
         with:
           name: MobSF Report
           path: mobsf_report.json
+
+  build_apk_production:
+    name: Generar y Subir APK a production
+    runs-on: ubuntu-latest
+    needs: analisis_mobsf
+    steps:
+      - name: Checkout del código en main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar usuario de GitHub Actions
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+      - name: Cambiar a la rama production (sin modificar código)
+        run: |
+          git fetch origin production || true
+          git checkout -b production origin/production || git checkout production
+          git reset --hard main  # Solo sincroniza, no sube cambios de código
+
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.3'
+          channel: 'stable'
+
+      - name: Instalar dependencias de Flutter
+        run: flutter pub get
+
+      - name: Generar APK en modo release
+        run: flutter build apk --release
+
+      - name: Mover APK a la raíz del repositorio
+        run: |
+          mv build/app/outputs/flutter-apk/app-release.apk app-release.apk
+          git add app-release.apk
+          git commit -m "Generado APK de producción"
+          git push origin production --force  # Envia el APK sin tocar el código de la rama
+          
+      - name: Subir APK como artefacto en GitHub Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: APK de Producción
+          path: app-release.apk
