@@ -1,45 +1,141 @@
-name: Build
+name: DevSecOps para Frontend Móvils
+
 on:
   push:
     branches:
       - main
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches:
+      - main
 
 jobs:
-  sonarqube:
-    name: SonarQube
-    runs-on: windows-latest
+  seguridad_gitleaks:
+    name: Seguridad con Gitleaks
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Checkout del código
+        uses: actions/checkout@v4
 
-      - name: Setup Java (Gradle requiere Java 11+)
+      - name: Instalar Gitleaks
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
+          chmod +x gitleaks
+          sudo mv gitleaks /usr/local/bin/
+
+      - name: Ejecutar Gitleaks para detectar credenciales
+        run: gitleaks detect --verbose --redact --source . || true
+
+  analisis_codigo_sonarqube:
+    name: Análisis de Código con SonarCloud
+    runs-on: ubuntu-latest
+    needs: seguridad_gitleaks
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java (Necesario para SonarCloud)
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'  # Usar JDK de Eclipse Adoptium (anteriormente AdoptOpenJDK)
-          java-version: '17'       # Se recomienda Java 17 para Gradle y Android
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.27.3'  # Ajusta según la versión que uses
-          channel: 'stable'
-
-      - name: Verify Flutter & Dart Versions
-        run: |
-          flutter --version
-          dart --version
-
-      - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Build APK (Android)
-        run: flutter build apk --release
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: "https://sonarcloud.io"
+
+  analisis_mobsf:
+    name: Análisis Dinámico con MobSF
+    runs-on: ubuntu-latest
+    needs: analisis_codigo_sonarqube
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.3'
+          channel: 'stable'
+
+      - name: Instalar dependencias de Flutter
+        run: flutter pub get
+
+      - name: Generar APK en modo release
+        run: flutter build apk --release
+
+      - name: Descargar e iniciar MobSF
+        run: |
+          docker pull opensecurity/mobile-security-framework-mobsf
+          docker run -d -p 8000:8000 --name mobsf opensecurity/mobile-security-framework-mobsf
+
+      - name: Esperar a que MobSF esté listo
+        run: sleep 30
+
+      - name: Analizar APK con MobSF
+        run: |
+          APK_PATH=$(find build/app/outputs/flutter-apk -name "*.apk" | head -n 1)
+          curl -X POST "http://localhost:8000/api/v1/upload" \
+            -H "Authorization: ${{ secrets.MOBSF_API_KEY }}" \
+            -F "file=@$APK_PATH"
+
+      - name: Obtener reporte de análisis
+        run: |
+          curl -X GET "http://localhost:8000/api/v1/report_json" \
+            -H "Authorization: ${{ secrets.MOBSF_API_KEY }}" \
+            -o mobsf_report.json
+
+      - name: Subir reporte como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: MobSF Report
+          path: mobsf_report.json
+
+  build_apk_production:
+    name: Generar y Subir APK a production
+    runs-on: ubuntu-latest
+    needs: analisis_mobsf
+    steps:
+      - name: Checkout del código en main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar usuario de GitHub Actions
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+      - name: Cambiar a la rama production (sin modificar código)
+        run: |
+          git fetch origin production || true
+          git checkout -b production origin/production || git checkout production
+          git reset --hard main  # Solo sincroniza, no sube cambios de código
+
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.3'
+          channel: 'stable'
+
+      - name: Instalar dependencias de Flutter
+        run: flutter pub get
+
+      - name: Generar APK en modo release
+        run: flutter build apk --release
+
+      - name: Mover APK a la raíz del repositorio
+        run: |
+          mv build/app/outputs/flutter-apk/app-release.apk app-release.apk
+          git add app-release.apk
+          git commit -m "Generado APK de producción"
+          git push origin production --force  # Envia el APK sin tocar el código de la rama
+          
+      - name: Subir APK como artefacto en GitHub Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: APK de Producción
+          path: app-release.apk
