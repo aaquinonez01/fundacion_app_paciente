@@ -65,7 +65,7 @@ class AppointmentFormNotifier extends StateNotifier<AppointmentFormState> {
 
   Future<void> getTypeTherapics() async {
     try {
-      print('🔹 Cargando áreas terapéuticas...');
+      print('🔹 Cargando áreas terapéuticas..');
       final areas = await typeTherapyRepository.getTypeTherapies();
       state = state.copyWith(areas: areas);
       print('🔹 Áreas terapéuticas cargadas: ${areas.length}');
