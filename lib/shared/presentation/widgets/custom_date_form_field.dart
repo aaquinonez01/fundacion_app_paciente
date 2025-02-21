@@ -12,6 +12,7 @@ class CustomDateFormField extends StatefulWidget {
   final Icon? prefixIcon;
   final bool isDatePicker;
   final String initialValue;
+  final bool lastDate;
 
   const CustomDateFormField({
     super.key,
@@ -25,6 +26,7 @@ class CustomDateFormField extends StatefulWidget {
     this.prefixIcon,
     this.isDatePicker = false,
     this.initialValue = '',
+    this.lastDate = true,
   });
 
   @override
@@ -105,7 +107,7 @@ class _CustomTextFormFieldState extends State<CustomDateFormField> {
                   context: context,
                   initialDate: DateTime.now(),
                   firstDate: DateTime(1900),
-                  lastDate: DateTime.now(),
+                  lastDate: widget.lastDate ? DateTime.now() : DateTime(2101),
                 );
                 if (pickedDate != null) {
                   final formattedDate =

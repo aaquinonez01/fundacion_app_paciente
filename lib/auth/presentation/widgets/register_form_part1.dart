@@ -112,8 +112,8 @@ class RegisterPatientPart1 extends ConsumerWidget {
                 ? registerForm.phone_user.errorMessage
                 : null,
             prefixIcon: const Icon(Icons.phone),
-            label: 'Telefono',
-            hint: 'Ingrese su telefono',
+            label: 'Teléfono',
+            hint: 'Ingrese su teléfono',
             keyboardType: TextInputType.phone,
             onChanged:
                 ref.read(registerFormProvider.notifier).onPhoneUserChanged),
@@ -126,8 +126,8 @@ class RegisterPatientPart1 extends ConsumerWidget {
               ? registerForm.address_user.errorMessage
               : null,
           prefixIcon: const Icon(Icons.location_on),
-          label: 'Direccion',
-          hint: 'Ingrese su direccion',
+          label: 'Dirección',
+          hint: 'Ingrese su dirección',
           keyboardType: TextInputType.streetAddress,
           onChanged:
               ref.read(registerFormProvider.notifier).onAddressUserChanged,

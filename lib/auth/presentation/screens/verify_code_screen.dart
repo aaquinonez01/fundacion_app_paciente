@@ -3,19 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fundacion_paciente_app/auth/presentation/providers/password_reset_provider.dart';
 import 'package:fundacion_paciente_app/shared/presentation/widgets/custom_text_form_fiield.dart';
 import 'package:fundacion_paciente_app/shared/presentation/widgets/header.dart';
-import 'package:go_router/go_router.dart';
 
-class ForgotPasswordScreen extends ConsumerWidget {
-  static const name = 'forgot-password-screen';
-  const ForgotPasswordScreen({super.key});
+class VerifyCodeScreen extends ConsumerWidget {
+  static const name = 'verify-code-screen';
+  const VerifyCodeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final passwordResetState = ref.watch(passwordResetProvider);
     final notifier = ref.read(passwordResetProvider.notifier);
+    final passwordResetState = ref.watch(passwordResetProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Recuperar Contraseña')),
+      appBar: AppBar(title: const Text('Verificar Código')),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
@@ -27,38 +26,34 @@ class ForgotPasswordScreen extends ConsumerWidget {
               imagePath: 'assets/images/logo.png',
               title: 'Fundación de niños especiales',
               subtitle: '"SAN MIGUEL" FUNESAMI',
-              item: '"Recuperar Contraseña"',
+              item: '"Verificar Código"',
             ),
             const SizedBox(height: 30),
             const Text(
-              'Ingresa tu correo para recuperar la contraseña',
+              'Ingrese el código enviado a su correo',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 20),
-
-            // Campo de entrada de correo
             CustomTextFormField(
               prefixIcon: const Icon(Icons.email),
               errorMessage: passwordResetState.isFormPosted
-                  ? passwordResetState.email.errorMessage
+                  ? passwordResetState.code.errorMessage
                   : null,
-              label: 'Correo Electrónico',
-              hint: 'Ingrese su correo',
+              label: 'Código de Verificación',
+              hint: 'Ingrese el código',
               keyboardType: TextInputType.emailAddress,
-              onChanged: notifier.onEmailChanged,
+              onChanged: notifier.onCodeChanged,
             ),
             const SizedBox(height: 30),
-
-            // Botón para enviar el código
             SizedBox(
               height: 50,
               width: double.infinity,
               child: FilledButton(
-                onPressed: () {
-                  notifier.sendCode();
+                onPressed: () async {
+                  notifier.verifyCode();
                 },
-                child: const Text('Enviar Código'),
+                child: const Text('Verificar Código'),
               ),
             ),
           ],

@@ -1,12 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
-import 'package:fundacion_paciente_app/shared/infrastructure/inputs/email_input.dart';
-import 'package:fundacion_paciente_app/shared/infrastructure/inputs/password_input.dart';
+import 'package:fundacion_paciente_app/auth/domain/repositories/auth_repository.dart';
+import 'package:fundacion_paciente_app/auth/infrastructure/errors/auth_errors.dart';
+import 'package:fundacion_paciente_app/auth/infrastructure/repositories/auth_repository_impl.dart';
+import 'package:fundacion_paciente_app/config/routes/app_routes.dart';
+import 'package:fundacion_paciente_app/shared/infrastructure/inputs/inputs.dart';
 
 // Estado del formulario de recuperación de contraseña
 class PasswordResetState {
   final Email email;
-  final String code;
+  final Name code;
   final Password newPassword;
   final bool isSubmitting;
   final bool isFormPosted;
@@ -15,7 +18,7 @@ class PasswordResetState {
 
   const PasswordResetState({
     this.email = const Email.pure(),
-    this.code = '',
+    this.code = const Name.pure(),
     this.newPassword = const Password.pure(),
     this.isSubmitting = false,
     this.isFormPosted = false,
@@ -25,7 +28,7 @@ class PasswordResetState {
 
   PasswordResetState copyWith({
     Email? email,
-    String? code,
+    Name? code,
     Password? newPassword,
     bool? isSubmitting,
     bool? isFormPosted,
@@ -45,32 +48,71 @@ class PasswordResetState {
 }
 
 class PasswordResetNotifier extends StateNotifier<PasswordResetState> {
-  PasswordResetNotifier() : super(const PasswordResetState());
+  final AuthRepository authRepository;
+  final Ref ref;
+  PasswordResetNotifier({
+    required this.ref,
+    required this.authRepository,
+  }) : super(const PasswordResetState());
 
   // Validar email
   void onEmailChanged(String value) {
     final newEmail = Email.dirty(value);
     state = state.copyWith(
       email: newEmail,
-      isValid: Formz.validate([newEmail, state.newPassword]),
+      isValid: Formz.validate([newEmail, state.code, state.newPassword]),
+    );
+  }
+
+  void onCodeChanged(String value) {
+    final newCode = Name.dirty(value);
+    state = state.copyWith(
+      code: newCode,
+      isValid: Formz.validate([state.email, newCode, state.newPassword]),
     );
   }
 
   // Enviar código de verificación
   Future<void> sendCode() async {
-    _touchFields();
+    _touchFieldEmail();
     if (!state.isValid) return;
 
-    state = state.copyWith(isSubmitting: true);
-    await Future.delayed(const Duration(seconds: 2)); // Simulación de API
+    try {
+      state = state.copyWith(isSubmitting: true);
+      await authRepository.sendCode(state.email.value);
 
-    // Simulamos éxito en el envío del código
-    state = state.copyWith(isSubmitting: false, errorMessage: '');
+      // Simulamos éxito en el envío del código
+      state = state.copyWith(isSubmitting: false, errorMessage: '');
+      ref.read(goRouterProvider).push('/reset-password/code');
+    } on CustomError catch (e) {
+      state = state.copyWith(isSubmitting: false, errorMessage: e.message);
+    } catch (e) {
+      state =
+          state.copyWith(isSubmitting: false, errorMessage: 'Error inesperado');
+    }
   }
 
   // Validar código ingresado
-  Future<bool> verifyCode(String inputCode) async {
-    return inputCode == "123456"; // Código de prueba
+  Future<void> verifyCode() async {
+    _touchFieldCode();
+    if (!state.isValid) return;
+    print('Verificando código...');
+    try {
+      state = state.copyWith(isSubmitting: true);
+      await authRepository.validateCode(
+        state.email.value,
+        state.code.value,
+      );
+
+      state = state.copyWith(isSubmitting: false, errorMessage: '');
+
+      ref.read(goRouterProvider).push('/reset-password/new-password');
+    } on CustomError catch (e) {
+      state = state.copyWith(isSubmitting: false, errorMessage: e.message);
+    } catch (e) {
+      state =
+          state.copyWith(isSubmitting: false, errorMessage: 'Error inesperado');
+    }
   }
 
   // Validar nueva contraseña
@@ -78,7 +120,7 @@ class PasswordResetNotifier extends StateNotifier<PasswordResetState> {
     final newPassword = Password.dirty(value);
     state = state.copyWith(
       newPassword: newPassword,
-      isValid: Formz.validate([state.email, newPassword]),
+      isValid: Formz.validate([state.email, state.code, newPassword]),
     );
   }
 
@@ -87,26 +129,56 @@ class PasswordResetNotifier extends StateNotifier<PasswordResetState> {
     _touchFields();
     if (!state.isValid) return;
 
-    state = state.copyWith(isSubmitting: true);
-    await Future.delayed(const Duration(seconds: 2)); // Simulación de API
-
-    state = state.copyWith(isSubmitting: false, errorMessage: '');
+    try {
+      state = state.copyWith(isSubmitting: true);
+      await authRepository.resetPassword(
+        state.email.value,
+        state.code.value,
+        state.newPassword.value,
+      );
+      ref.read(goRouterProvider).push('/login');
+      state = state.copyWith(isSubmitting: false, errorMessage: '');
+    } on CustomError catch (e) {
+      state = state.copyWith(isSubmitting: false, errorMessage: e.message);
+    }
   }
 
   // Marcar los campos como modificados
-  void _touchFields() {
+  void _touchFieldEmail() {
     final email = Email.dirty(state.email.value);
-    final password = Password.dirty(state.newPassword.value);
 
     state = state.copyWith(
       isFormPosted: true,
       email: email,
-      newPassword: password,
-      isValid: Formz.validate([email, password]),
+      isValid: Formz.validate([email]),
+    );
+  }
+
+  void _touchFieldCode() {
+    final code = Name.dirty(state.code.value);
+
+    state = state.copyWith(
+      isFormPosted: true,
+      code: code,
+      isValid: Formz.validate([code]),
+    );
+  }
+
+  void _touchFields() {
+    final email = Email.dirty(state.email.value);
+    final newPassword = Password.dirty(state.newPassword.value);
+
+    state = state.copyWith(
+      isFormPosted: true,
+      email: email,
+      newPassword: newPassword,
+      isValid: Formz.validate([email, newPassword]),
     );
   }
 }
 
 final passwordResetProvider = StateNotifierProvider.autoDispose<
-    PasswordResetNotifier,
-    PasswordResetState>((ref) => PasswordResetNotifier());
+    PasswordResetNotifier, PasswordResetState>((ref) {
+  final authRepository = AuthRepositoryImpl();
+  return PasswordResetNotifier(authRepository: authRepository, ref: ref);
+});

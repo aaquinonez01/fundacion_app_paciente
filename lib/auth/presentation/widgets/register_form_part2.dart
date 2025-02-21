@@ -54,8 +54,8 @@ class RegisterPatientPart2 extends ConsumerWidget {
               ? registerForm.cedula_patient.errorMessage
               : null,
           prefixIcon: const Icon(Icons.person_2_rounded),
-          label: 'Cedula de Ciudadanía',
-          hint: 'Ingrese su cedula de ciudadanía',
+          label: 'Cédula de Ciudadanía',
+          hint: 'Ingrese su cédula de ciudadanía',
           keyboardType: TextInputType.emailAddress,
           onChanged:
               ref.read(registerFormProvider.notifier).onCedulaPatientChanged,
@@ -170,8 +170,8 @@ class RegisterPatientPart2 extends ConsumerWidget {
               ? registerForm.guardian_legal_patient.errorMessage
               : null,
           prefixIcon: const Icon(Icons.person),
-          label: 'Guardian Legal',
-          hint: 'Ingrese el nombre de su guardian legal',
+          label: 'Guardián Legal',
+          hint: 'Ingrese el nombre de su guardián legal',
           keyboardType: TextInputType.name,
           onChanged: ref
               .read(registerFormProvider.notifier)

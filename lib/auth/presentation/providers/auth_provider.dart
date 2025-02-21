@@ -4,6 +4,7 @@ import 'package:fundacion_paciente_app/auth/domain/entities/user_register.dart';
 import 'package:fundacion_paciente_app/auth/domain/repositories/auth_repository.dart';
 import 'package:fundacion_paciente_app/auth/infrastructure/errors/auth_errors.dart';
 import 'package:fundacion_paciente_app/auth/infrastructure/repositories/auth_repository_impl.dart';
+import 'package:fundacion_paciente_app/config/routes/app_routes.dart';
 import 'package:fundacion_paciente_app/shared/infrastructure/services/key_value_storage_service.dart';
 import 'package:fundacion_paciente_app/shared/infrastructure/services/key_value_storage_service_impl.dart';
 
@@ -13,16 +14,19 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
 
   return AuthNotifier(
       authRepository: authRepository,
-      keyValueStorageService: keyValueStorageService);
+      keyValueStorageService: keyValueStorageService,
+      ref: ref);
 });
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository authRepository;
   final KeyValueStorageService keyValueStorageService;
+  final Ref ref;
 
   AuthNotifier({
     required this.authRepository,
     required this.keyValueStorageService,
+    required this.ref,
   }) : super(AuthState()) {
     checkAuthStatus();
   }
@@ -43,9 +47,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   void registerUser(RequestData register) async {
     try {
-      final user = await authRepository.register(register);
-      _setLoggedUser(user);
+      final userResponseValid = await authRepository.register(register);
+
+      if (userResponseValid) {
+        // 🔥 Redirigir a la pantalla de Login después del registro exitoso
+        ref.read(goRouterProvider).go('/login');
+      }
     } on CustomError catch (e) {
+      print(e.message);
       logout(e.message);
     } catch (e) {
       logout('Error no controlado');

@@ -15,17 +15,18 @@ class UserMapper {
           id: json['userInformation']['id'] ?? '',
         ),
         id: json['id'] ?? '',
+        patientID: json['patientID'] ?? '',
         email: json['email'] ?? '',
         token: json['token'] ?? '',
         userRoles: json['userRoles'] != null
-            ? json['userRoles']
+            ? (json['userRoles'] as List<dynamic>)
                 .map<UserRole>((role) => UserRole(
                       role: Role(
                         name:
-                            role['role']['name'] ?? '', // Acceso a `role.name`
+                            role.toString(), // `role` es un String directamente
                       ),
                     ))
                 .toList()
-            : [], // Lista vacía si `userRoles` es nulo
+            : [], // Lista vacía si `userRoles` es nulo // Lista vacía si `userRoles` es nulo
       );
 }

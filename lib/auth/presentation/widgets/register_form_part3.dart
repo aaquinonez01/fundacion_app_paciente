@@ -26,7 +26,7 @@ class RegisterPatientPart3 extends ConsumerWidget {
           height: 10,
         ),
 
-        const Text('Informacion Médica del Paciente',
+        const Text('Información Médica del Paciente',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,

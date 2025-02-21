@@ -505,7 +505,7 @@ class FormularioNotifier extends StateNotifier<FormularioState> {
 
   void setInitialData() {
     state = state.copyWith(
-      email_user: Email.dirty('davidsalguero@gmail.com'),
+      email_user: Email.dirty('adsalguero@espe.edu.ec'),
       password_user: Password.dirty('!David123'),
       username_user: Username.dirty('davidsalguero1'),
       firstname_user: Name.dirty('David'),
